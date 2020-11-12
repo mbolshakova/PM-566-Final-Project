@@ -19,7 +19,7 @@ library(Hmisc)
 library(plotly)
 library(DT)
 
-fitbit <- data.table::fread('fitbit3.csv')
+fitbit <- data.table::fread('fitbit4.csv')
 ```
 
 # Plot 1- Scatterplot
