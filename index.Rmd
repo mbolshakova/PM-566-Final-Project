@@ -1,0 +1,64 @@
+---
+title: "Homework 5"
+author: "Maria Bolshakova"
+output: 
+    html_document:
+        toc: TRUE
+        toc_float: TRUE
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+library(knitr)
+library(Hmisc)
+library(plotly)
+library(DT)
+
+fitbit <- data.table::fread('fitbit3.csv')
+```
+
+# Plot 1- Scatterplot
+
+```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+fitbit %>% 
+  plot_ly(x = ~steps, y = ~floors, 
+          type = 'scatter', mode = 'markers', color = ~weekday,
+            size = ~calories, sizes = c(5, 70), marker = list(sizemode='diameter', opacity=0.5),
+          hoverinfo = 'text',
+          text = ~paste( paste(weekday, ":", sep=""), 
+                         paste(" Steps Per Day: ", steps, sep="") , 
+                         paste(" Calories Burned Per Day: ", calories, sep="") ,
+                         paste(" Floors Per Day: ", floors, sep=""), sep = "<br>")) %>% 
+layout(title = "Scatterplot of Steps and Floors by Weekday",
+                  yaxis = list(title = "Floors"), xaxis = list(title = "Steps"), 
+       hovermode = "compare")
+        
+```
+
+# Plot 2 -Line Graph
+```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+fitbit$covid2 <- as.factor(fitbit$covid)
+levels(fitbit$covid2) <- c("Pre-Covid", "Covid")
+
+
+fitbit %>%
+plot_ly(x = ~date, y = ~weight, color = ~covid2, type = "scatter", mode = "lines",
+        hoverinfo = 'text',
+        text = ~paste( paste("Date: ", date, sep=""), paste(covid, ":", sep=""), paste(" Weight: ", weight, sep=""), 
+                       sep = "<br>")) %>% 
+layout(title = "Weight by Date Before and After Covid",
+                  yaxis = list(title = "Weight"), xaxis = list(title = "Date"), 
+       hovermode = "closest")
+```
+
+# Plot 3 - Interactive Data Table for the Month of January
+```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+fitbit_january <- fitbit %>% filter((date >= as.Date("2020-01-01") & date <= as.Date("2020-01-31"))) %>% select(date,weight,calories,steps,mins_asleep)
+datatable(fitbit_january)
+```
+
