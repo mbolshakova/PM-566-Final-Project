@@ -6,7 +6,7 @@ navbar:
     - text: "Homework 5"
       href: index.html
     - text: "Final Project"
-      href: Midterm2.html
+      href: presentation.html
 output:
   html_document:
     theme: yeti
