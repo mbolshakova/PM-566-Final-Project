@@ -11,9 +11,9 @@
 
 <meta name="author" content="Maria Bolshakova" />
 
-<meta name="date" content="2020-11-18" />
+<meta name="date" content="2020-11-24" />
 
-<title>Final Project</title>
+<title>Final Report</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -24,6 +24,7 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/table1-1.0/table1_defaults.css" rel="stylesheet" />
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -269,12 +270,15 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">FitBit Data Project</a>
+      <a class="navbar-brand" href="index.html">PM566 Final Project</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">FitBit Data Project</a>
+  <a href="index.html">Homework 5</a>
+</li>
+<li>
+  <a href="presentation.html">Final Project</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -288,23 +292,30 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Final Project</h1>
+<h1 class="title toc-ignore">Final Report</h1>
 <h4 class="author">Maria Bolshakova</h4>
-<h4 class="date">11/18/2020</h4>
+<h4 class="date">11/24/2020</h4>
 
 </div>
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>The dataset I’m using for this project is a year of data collected on my fitness and sleep activity through my FitBit. I’ve always enjoyed looking at my FitBit stats in the app I use, but I wanted to conduct a more thorough analysis of my activity over the past year (October 2019-September 2020). Some of the important variables in this dataset are: date, day of the week, steps, floors, distance, calories burned, calories burned from activity, weight, and minutes of sleep. I generally wear my FitBit throughout the day and when I sleep, so it is almost always tracking my activity. Although my FitBit tracks heart rate, that data was unavailable. However, there are multiple variables that are based off heart rate such as minutes sedentary, light activity, vigorous activity, and calories burned from activity. I would like to address the following overarching question and sub-questions for this analysis:</p>
-<div id="main-question" class="section level4">
-<h4>Main Question:</h4>
+<p>The dataset I’m using for this project is a year of data collected on my fitness and sleep activity through my FitBit. I’ve always enjoyed looking at my FitBit stats in the app I use, but I wanted to conduct a more thorough analysis of my activity over the past year (October 2019-September 2020). Some of the important variables in this dataset are: date, day of the week, steps, floors, distance, calories burned, calories burned from activity, weight, and minutes of sleep. I generally wear my FitBit throughout the day and when I sleep, so it is almost always tracking my activity. Although my FitBit tracks heart rate, that data was unavailable. However, there are multiple variables that are based off heart rate such as minutes sedentary, light activity, vigorous activity, and calories burned from activity.</p>
+<p>In addition to the FitBit data, I decided to incorporate Los Angeles daily weather data from the National Weather Service website. I chose to do this because weather can have a profound impact on activity-- for example on days when it's extremely hot or cold, it makes it more difficult to exercise outdoors. The same goes for the few days a year it rains in Los Angeles. Finally, I decided to add an extra variable to my dataset which indicated if I was away on a trip somewhere outside of Los Angeles. Days on which I was on a trip can be considered confounding variables, since I was not living my &quot;average&quot; lifestyle on these trips.</p>
+<p>Activity is an important part of a healthy lifestyle, and the CDC recommends 150 minutes a week of moderate-intensity exercise, or 75 minutes a week or vigorous-intensity, or a an equivalent combination (1). One study found that adults average 4,000-18,000 steps a day. The study claims that a goal of 10,000 steps per day is reasonable for healthy adults (2). Recommended sleep for adults is generally between 7-9 hours per night (3), with the goal to not get too little, or too much sleep. Physical activity is beneficial not only for general health, but also for mental health. As such, it has been recommended to stay physically active during the Covid-19 pandemic, although types of exercise may have to shift from going to the gym to doing outdoor or home-based workouts. However, it has recently been found that step counts decreased worldwide in the period after COVID-19 was declared a global pandemic (4).</p>
+<p>Ultimately, I wanted to explore my fitness, and how it interacted with external factors such as weather, the Covid-19 pandemic, and days of the week.</p>
+<p>I would like to address the following overarching question and sub-questions for this analysis:</p>
+<div id="main-question" class="section level3">
+<h3>Main Question:</h3>
 <p>How does my personal FitBit data characterize multiple markers of health and wellbeing?</p>
-<p>Sub-questions:</p>
+<div id="sub-questions" class="section level4">
+<h4>Sub-questions:</h4>
 <p>1.) How did the Covid-19 pandemic affect my health in terms of activity, sleep, and weight?</p>
-<p>2.) What days of the week am I most active and get the most sleep?</p>
-<p>3.) How are my activity, weight, and sleep related to each other?</p>
+<p>2.) How does daily weather affect my health in terms activity, sleep, and weight?</p>
+<p>3.) What days of the week am I most active and get the most sleep?</p>
+<p>4.) How are my activity, weight, and sleep related to each other?</p>
+</div>
 </div>
 </div>
 <div id="methods" class="section level1">
@@ -317,86 +328,154 @@ $(document).ready(function () {
 <li><p>Step count, which was based on my own personal interpretation/goals of steps I like to achieve in a day: very high step count (&gt;15,000), high step count (10,000-15,000), average step count (5,000-10,000) and low step count (&lt;5,000). I had a high step count the greatest number of days (N=158). Additionally, I changed any value below 1,000 steps to missing, since this indicates that I was not wearing my FitBit that day.</p></li>
 <li><p>For sleep, I made 3 categories which were based on guidelines which indicate 7-9 hours of sleep is ideal. These categories were: short sleep time (&lt;7 hours), ideal sleep time (7-9 hours), and long sleep time (&gt;9 hours). I also noted that the lowest value of sleep was 93 minutes, or roughly 1.5 hours. Since this variable is a sum of all sleep throughout the day, it is hard to believe that I only got 1.5 hours on a given day. More likely, I wasn't wearing my fitbit during a time when I was sleeping, or it died during my sleep, so it didn't capture the full data. For this reason, I converted improbable values that lie in the lower 5% of the data, which is 289 minutes, or almost 5 hours to missing. The maximum is 754 minutes, or 12.5 hours, which is entirely possible for me, given that I know my sleeping/nap pattern.</p></li>
 </ol>
-<p>Finally, I created two new variables-- one extracting just the month from the date variable, and the other is a binary variable that is &quot;Pre-Covid&quot; and &quot;Covid&quot;. I set &quot;Covid&quot; to start March 14, 2020 and has continued until the present/end of the dataset (through September). Dates before March 14th are considered pre-Covid.</p>
+<p>I created a binary variable that is &quot;Pre-Covid&quot; and &quot;Covid&quot;. I set &quot;Covid&quot; to start March 14, 2020 and has continued until the present/end of the dataset (through September). Dates before March 14th are considered pre-Covid.</p>
+<p>For the final project, I decided to add in weather data to my dataset. I acquired this data from the National Weather Service website (<a href="https://w2.weather.gov/climate/xmacis.php?wfo=lox" class="uri">https://w2.weather.gov/climate/xmacis.php?wfo=lox</a>). I entered my location as Pasadena, CA, since that is the closest location to where I live, and I pulled data for October 2019- September 2020. I decided to use the daily minimum, daily maximum, and daily average temperature, as well as precipitation (inches), and incorporated that into my master excel sheet. Finally, I wanted to code for days on which I had been away from LA on a trip. I looked through my calendar for any indication of being away on a trip and coded that as a binary variable, in which 1= on a trip, and 0= normal Los Angeles day. This was all done in Excel for ease of data entry, and then I re-ran my existing (midterm project) code in order to update the dataframe with my new weather and trip data. I checked that each new variable was correctly entered by looking at the summary statistics and frequency of the binary trip variable.</p>
 <p>For data exploration, summary statistics and graphs I used a mix of frequency tables (with chi sq), correlation analysis, t-tests, box plots, scatterplots, and barcharts.</p>
 </div>
-<div id="preliminary-results" class="section level1">
-<h1>Preliminary Results</h1>
-<div id="exploratory-statistics" class="section level3">
-<h3>Exploratory Statistics</h3>
-<pre><code>## [1] 0.7401425</code></pre>
-<pre><code>##                      activity_level Average Activity High Activity Low Activity Very High Activity
-## steps_level                                                                                       
-## Average Step Count                                34            23           31                 10
-## High Step Count                                   49            64            2                 43
-## Low Step Count                                     8             1           33                  1
-## Very High Step Count                               0             2            1                 39</code></pre>
-<pre><code>## Call: xtabs(formula = ~steps_level + activity_level, data = fitbit)
-## Number of cases in table: 341 
-## Number of factors: 2 
-## Test for independence of all factors:
-##  Chisq = 243.42, df = 9, p-value = 2.436e-47</code></pre>
-<pre><code>## 
-##  Welch Two Sample t-test
-## 
-## data:  steps by covid2
-## t = 1.8398, df = 328.92, p-value = 0.06669
-## alternative hypothesis: true difference in means is not equal to 0
-## 95 percent confidence interval:
-##   -59.9292 1791.2625
-## sample estimates:
-## mean in group Pre-Covid     mean in group Covid 
-##               10775.333                9909.667</code></pre>
-<pre><code>## 
-##  Welch Two Sample t-test
-## 
-## data:  weight by covid2
-## t = 15.35, df = 237.91, p-value &lt; 2.2e-16
-## alternative hypothesis: true difference in means is not equal to 0
-## 95 percent confidence interval:
-##  4.471655 5.788385
-## sample estimates:
-## mean in group Pre-Covid     mean in group Covid 
-##                141.7007                136.5706</code></pre>
-<pre><code>## 
-##  Welch Two Sample t-test
-## 
-## data:  mins_asleep by covid2
-## t = -0.59836, df = 261.71, p-value = 0.5501
-## alternative hypothesis: true difference in means is not equal to 0
-## 95 percent confidence interval:
-##  -24.68429  13.17861
-## sample estimates:
-## mean in group Pre-Covid     mean in group Covid 
-##                470.3409                476.0938</code></pre>
-<pre><code>## 
-##  Welch Two Sample t-test
-## 
-## data:  calories by covid2
-## t = 4.4842, df = 362.63, p-value = 9.835e-06
-## alternative hypothesis: true difference in means is not equal to 0
-## 95 percent confidence interval:
-##  108.5279 278.0709
-## sample estimates:
-## mean in group Pre-Covid     mean in group Covid 
-##                2327.061                2133.761</code></pre>
-<p>I first wanted to explore the relationship between calories burned and step count. I tested this using a correlation on the numeric data, as well as a frequency table with chi sq. The correlation was moderately strong (r=0.75). The frequency table showed it is clear that when there is a low or very high step count, that corresponds with low or very high activity based on calories. However, calories burned and step count aren't necessarily always related. I believe this is because there are other forms of activity (yoga, weightlifting, etc) that I sometimes do which do not produce a lot of steps, but do increase heart rate which increases calories burned.</p>
-<p>I also found based on t-tests using covid as the grouping variable, that there was a significant difference of weight during and before covid, with covid resulting in me having less average weight. The mean step count was trending on significance (p=0.06), with less average steps taken during Covid than before Covid. My calories burned were significantly less during Covid than before. Minutes asleep did not significantly differ pre-covid and during covid.</p>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<div id="table-1-descriptive-statistics-by-covid-19-pandemic" class="section level3">
+<h3>Table 1: Descriptive Statistics by Covid-19 Pandemic</h3>
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Post-Covid<br><span class='stratn'>(N=201)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Pre-Covid<br><span class='stratn'>(N=165)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=366)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Steps</span></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>9910 (4170)</td>
+<td>10800 (4470)</td>
+<td>10300 (4330)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Median [Min, Max]</td>
+<td>10400 [1980, 26100]</td>
+<td>10900 [2230, 23200]</td>
+<td>10500 [1980, 26100]</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>24 (11.9%)</td>
+<td class='lastrow'>3 (1.8%)</td>
+<td class='lastrow'>27 (7.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Average Daily Temperature<span class='varunits'> (degrees farenheit)</span></span></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>72.2 (9.64)</td>
+<td>62.1 (7.38)</td>
+<td>68.0 (10.1)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Median [Min, Max]</td>
+<td>73.5 [48.0, 98.5]</td>
+<td>61.0 [46.0, 79.0]</td>
+<td>68.0 [46.0, 98.5]</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>10 (5.0%)</td>
+<td class='lastrow'>30 (18.2%)</td>
+<td class='lastrow'>40 (10.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Minutes Asleep</span></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>476 (75.4)</td>
+<td>470 (86.7)</td>
+<td>473 (80.6)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Median [Min, Max]</td>
+<td>469 [289, 754]</td>
+<td>469 [289, 738]</td>
+<td>469 [289, 754]</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>41 (20.4%)</td>
+<td class='lastrow'>33 (20.0%)</td>
+<td class='lastrow'>74 (20.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Weight<span class='varunits'> (lb)</span></span></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>137 (4.52)</td>
+<td>142 (1.28)</td>
+<td>139 (4.30)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Median [Min, Max]</td>
+<td class='lastrow'>136 [130, 145]</td>
+<td class='lastrow'>141 [140, 145]</td>
+<td class='lastrow'>141 [130, 145]</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Daily Calories Burned</span></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>2130 (465)</td>
+<td>2330 (359)</td>
+<td>2220 (431)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Median [Min, Max]</td>
+<td class='lastrow'>2100 [1360, 4400]</td>
+<td class='lastrow'>2340 [1440, 3160]</td>
+<td class='lastrow'>2180 [1360, 4400]</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="graphs-and-plots" class="section level3">
-<h3>Graphs and Plots</h3>
 </div>
-<div id="variables-by-date-and-covid" class="section level2">
-<h2>Variables By Date and Covid</h2>
-<p><img src="presentation_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-3-2.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-3-3.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-3-4.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-3-5.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-3-6.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-3-7.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-3-8.png" width="672" /></p>
+<div id="graphs-and-plots" class="section level2">
+<h2>Graphs and Plots</h2>
+<div id="variables-by-date" class="section level3">
+<h3>Variables By Date</h3>
+<p><img src="Final-Project-Report_files/figure-html/unnamed-chunk-4-1.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-4-2.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-4-3.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-4-4.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-4-5.png" width="672" /></p>
+</div>
+<div id="variables-by-covid" class="section level3">
+<h3>Variables by Covid</h3>
+<p><img src="Final-Project-Report_files/figure-html/unnamed-chunk-5-1.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-5-2.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-5-3.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-5-4.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-5-5.png" width="672" /></p>
+</div>
 </div>
 <div id="variables-by-weekday" class="section level2">
 <h2>Variables by Weekday</h2>
-<p><img src="presentation_files/figure-html/unnamed-chunk-4-1.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-4-2.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
+<p><img src="Final-Project-Report_files/figure-html/unnamed-chunk-6-1.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-6-2.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-6-3.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-6-4.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-6-5.png" width="672" /></p>
 </div>
 <div id="associations-between-variables" class="section level2">
 <h2>Associations between variables</h2>
-<p><img src="presentation_files/figure-html/unnamed-chunk-5-1.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-5-2.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-5-3.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-5-4.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-5-5.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-5-6.png" width="672" /><img src="presentation_files/figure-html/unnamed-chunk-5-7.png" width="672" /></p>
+<p><img src="Final-Project-Report_files/figure-html/unnamed-chunk-7-1.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-7-2.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-7-3.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-7-4.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-7-5.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-7-6.png" width="672" /><img src="Final-Project-Report_files/figure-html/unnamed-chunk-7-7.png" width="672" /></p>
 </div>
 </div>
 <div id="conclusions" class="section level1">
@@ -405,6 +484,13 @@ $(document).ready(function () {
 <p>The graphs show that I am most active on Fridays (using all dates), which makes sense because I usually work out the most on a Friday, and then would generally go out and walk around the town (pre-covid), which required a lot of steps. I sleep most on Mondays, which also makes sense because I am usually tired from the weekend, and sleep a lot Sunday night- Monday morning, and then occasionally nap on Monday as well.</p>
 <p>It would make more sense if my weight and activity were more related (ie higher step count/calories burned= less weight), however, as previously mentioned there were nutrition factors that affected my weight, which goes to show nutrition is very important in losing weight even if you have a lot of physical activity! It did look like there might be some differences in sleep category based on calories burned, so I will need to explore that later.</p>
 <p>Moving forward, I would like to conduct more concrete analyses of this data to determine significance. I also might incorporate an LA weather dataset and see if weather relates to my step count. I know that when it has been really hot outside I haven't been going for walks, and I think that would be interesting to track. I also could potentially scrape my fitbit data for exercise data (e.g runs, jogs, walks, weightlifting, yoga), and make a categorical variable out of that, and then explore differences between those exercises and calories burned. There are additional variables such as calories burned due to light activity, moderate activity, and physical activity which could be interesting to look at in relation to exercise. Finally, I think it would be interesting to code this data for events such as holidays, vacations, trips, etc., to see if things like Thanksgiving or being home for Winter Break leads to less activity.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>1- CDC Physical Activity Guidelines (2020) <a href="https://www.cdc.gov/physicalactivity/basics/adults/index.htm" class="uri">https://www.cdc.gov/physicalactivity/basics/adults/index.htm</a></p>
+<p>2- Tudor-Locke, C., Craig, C. L., Brown, W. J., Clemes, S. A., De Cocker, K., Giles-Corti, B., ... &amp; Oppert, J. M. (2011). How many steps/day are enough? For adults. International Journal of Behavioral Nutrition and Physical Activity, 8(1), 1-17</p>
+<p>3- Sleep Guidelines (2020) <a href="https://www.sleepfoundation.org/articles/how-much-sleep-do-we-really-need#" class="uri">https://www.sleepfoundation.org/articles/how-much-sleep-do-we-really-need#</a>:~:text=National%20Sleep%20Foundation%20guidelines1,to%208%20hours%20per%20night.</p>
+<p>4- Tison, G. H., Avram, R., Kuhar, P., Abreau, S., Marcus, G. M., Pletcher, M. J., &amp; Olgin, J. E. (2020). Worldwide effect of COVID-19 on physical activity: a descriptive study. Annals of internal medicine.</p>
 </div>
 
 

@@ -1,12 +1,11 @@
 ---
-title: "Homework 5"
+title: "FitBit Data Project"
 author: "Maria Bolshakova"
 output: 
     html_document:
         toc: TRUE
         toc_float: TRUE
 ---
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -15,50 +14,252 @@ library(tidyverse)
 library(dplyr)
 library(lubridate)
 library(knitr)
+library(psych)
 library(Hmisc)
+library(summarytools)
+library(htmlTable)
+library(boot)
+library(table1)
+library(ggpubr)
+library(ggplot2)
 library(plotly)
 library(DT)
 
-fitbit <- data.table::fread('fitbit4.csv')
+fitbit <- data.table::fread('fitbit3.csv')
+
 ```
 
-# Plot 1- Scatterplot
 
-```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
-fitbit %>% 
-  plot_ly(x = ~steps, y = ~floors, 
-          type = 'scatter', mode = 'markers', color = ~weekday,
-            size = ~calories, sizes = c(5, 70), marker = list(sizemode='diameter', opacity=0.5),
-          hoverinfo = 'text',
-          text = ~paste( paste(weekday, ":", sep=""), 
-                         paste(" Steps Per Day: ", steps, sep="") , 
-                         paste(" Calories Burned Per Day: ", calories, sep="") ,
-                         paste(" Floors Per Day: ", floors, sep=""), sep = "<br>")) %>% 
-layout(title = "Scatterplot of Steps and Floors by Weekday",
-                  yaxis = list(title = "Floors"), xaxis = list(title = "Steps"), 
-       hovermode = "compare")
-        
-```
+```{r,message=FALSE, warning=FALSE, echo=FALSE, results="hide"}
+## This was already done for the midterm project version, so does not need to be done again for this version.
 
-# Plot 2 -Line Graph
-```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+str(fitbit)
+## Numbers were commas were read in as character instead of numeric/integer, need to fix.
+ fitbit$calories <- as.numeric(gsub(",","",fitbit$calories))
+ fitbit$steps <- as.numeric(gsub(",","",fitbit$steps))
+ fitbit$mins_sedentary <- as.numeric(gsub(",","",fitbit$mins_sedentary))
+ fitbit$calories_activity <- as.numeric(gsub(",","",fitbit$calories_activity))
+ 
+## Converting to date class
+as.Date(fitbit$date, "%Y/%m/%d")
+
+##Summary stats
+ 
+summary(fitbit$calories)
+summary(fitbit$steps)
+summary(fitbit$mins_asleep)
+summary(fitbit$distance)
+summary(fitbit$weight)
+summary(fitbit$floors)
+
+## Making new categorical variable of activity level as determined by calories burned using the quartiles in the summary statistics on calories. 
+fitbit$activity_level <-ifelse(fitbit$calories >=2471, "Very High Activity",
+                           ifelse(fitbit$calories >=2184 & fitbit$calories <2471, "High Activity",
+                           ifelse(fitbit$calories >=1974 & fitbit$calories <2184, "Average Activity", "Low Activity")))
+
+fitbit %>%
+  group_by(activity_level) %>%
+summarise(
+  first=min(calories),
+  last=max(calories))
+fitbit %>% count(activity_level)
+
+## Making new categorical variable of steps level/activity level
+
+fitbit$steps_level <-ifelse(fitbit$steps >=15000, "Very High Step Count",
+                           ifelse(fitbit$steps >=10000 & fitbit$steps <15000, "High Step Count",
+                           ifelse(fitbit$steps >=5000 & fitbit$steps <10000, "Average Step Count", "Low Step Count")))
+fitbit %>%
+  group_by(steps_level) %>%
+summarise(
+  first=min(steps),
+  last=max(steps))
+fitbit %>% count(steps_level)
+
+## Replacing steps under 1000 to be equal to missing
+fitbit$steps <- replace(fitbit$steps, which(fitbit$steps <= 1000), NA)
+
+#Replacing sleep under 5 hours to be equal to mising
+quantile(fitbit$mins_asleep, 0.05, na.rm=TRUE)
+fitbit$mins_asleep <- replace(fitbit$mins_asleep, which(fitbit$mins_asleep < 289), NA)
+
+##Changing weekday variable to factor 
+fitbit$weekday2 <- as.factor(fitbit$weekday)
+
+## Creating a binary variable out of the date variable of Covid. Using March 14th as the start of Covid/quarantine.
+fitbit$covid <- ifelse(fitbit$date > as.Date("2020/03/13", format = "%Y/%m/%d") &
+                    fitbit$date < as.Date("2020/10/01", format = "%Y/%m/%d"), 1, 0)
+
+
+## Converting covid variable to factor class and renaming covid variable 
 fitbit$covid2 <- as.factor(fitbit$covid)
 levels(fitbit$covid2) <- c("Pre-Covid", "Covid")
 
+```
 
+# FitBit Project
+
+
+This website shows the results of a project I've created for a Health Data Science Course at the University of Southern California-- Keck School of Medicine. The dataset I’m using for this project is a year of data collected on my fitness and sleep activity through my FitBit. Some of the important variables in this dataset are: date, day of the week, steps, floors, distance, calories burned, calories burned from activity, weight, minutes of sleep, Los Angeles daily average temperature, and binary variables of pre-covid 19 pandemic/post-pandemic, and whether or not I was traveling outside of Los Angeles on any given day. This dataset spans October 2019-September 2020. 
+
+Activity is an important part of a healthy lifestyle, and the CDC recommends 150 minutes a week of moderate-intensity exercise, or 75 minutes a week or vigorous-intensity, or a an equivalent combination (1). One study found that adults average 4,000-18,000 steps a day. The study claims that a goal of 10,000 steps per day is reasonable for healthy adults (2). Recommended sleep for adults is generally between 7-9 hours per night (3), with the goal to not get too little, or too much sleep. Physical activity is beneficial not only for general health, but also for mental health. As such, it has been recommended to stay physically active during the Covid-19 pandemic, although types of exercise may have to shift from going to the gym to doing outdoor or home-based workouts. However, it has recently been found that step counts decreased worldwide in the period after COVID-19 was declared a global pandemic (4). 
+
+Ultimately, I wanted to explore my health and fitness, and how it interacted with external factors such as weather, the Covid-19 pandemic, and days of the week. 
+
+
+## Results
+
+After downloading the FitBit and Weather data, I cleaned and wrangled the dataset using what I learned in the data science course. I created extra categorical variables, and checked for missing data and outliers. Presented below are some of the findings from my analysis. 
+
+
+
+#### Table 1: Descriptive Statistics by Covid-19 Pandemic
+
+
+```{r,message=FALSE, warning=FALSE, echo=FALSE}
+##Descriptive stats table
+fitbit$covid <- 
+  factor(fitbit$covid, levels=c(1,0),
+         labels=c("Post-Covid", 
+                  "Pre-Covid"))
+label(fitbit$steps)       <- "Steps"
+label(fitbit$avg_temp)       <- "Average Daily Temperature"
+label(fitbit$mins_asleep)     <- "Minutes Asleep"
+label(fitbit$weight) <- "Weight"
+label(fitbit$calories) <- "Daily Calories Burned"
+
+units(fitbit$avg_temp)       <- "degrees farenheit"
+units(fitbit$weight) <- "lb"
+
+table1(~ steps + avg_temp + mins_asleep + weight + calories | covid, data=fitbit)
+
+```
+
+
+### Interactive Plots
+
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+##Steps and temp over time (for website)
+fitbit %>% 
+  plot_ly(x = ~date, y = ~steps, 
+          type = 'scatter', mode = 'markers', 
+            size = ~avg_temp, sizes = c(5, 50), marker = list(sizemode='diameter', opacity=0.5),
+          hoverinfo = 'text',
+          text = ~paste( paste(weekday, ":", sep=""), 
+                         paste(" Steps Per Day: ", steps, sep="") , 
+                         paste(" Average Daily Temperature: ", avg_temp, sep="") ,
+                         paste(" Date: ", date, sep=""), sep = "<br>")) %>% 
+layout(title = "Scatterplot of Daily Steps and Average Temperature Over Time",
+                  yaxis = list(title = "Steps"), xaxis = list(title = "Date"), 
+       hovermode = "compare")
+
+```
+
+
+This scatterplot shows how my step count changed over time, as well as how my step count interacted with the daily average temperature, which is shown by the size of each point on the plot. There isn't too much range in temperature, since Los Angeles generally doesn't get cold very often and doesn't fluctuate all too much, besides getting very got in the summer. You can see from the sizes of the points on the right that the weather got a lot hotter in July-September, which is to be expected. It's also worth noting that I tended to have higher step counts in the beginning of the dataset than towards the end. 
+
+
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+##Calories and steps over time by weekday (for website)
+fitbit %>% 
+  plot_ly(x = ~date, y = ~calories, 
+          type = 'scatter', mode = 'markers', color = ~weekday,
+            size = ~steps, sizes = c(2, 40), marker = list(sizemode='diameter', opacity=0.6),
+          hoverinfo = 'text',
+          text = ~paste( paste(weekday, ":", sep=""), 
+                         paste(" Daily Calories Burned: ", calories, sep="") , 
+                         paste(" Steps: ", steps, sep="") ,
+                         paste(" Date: ", date, sep=""), sep = "<br>")) %>% 
+layout(title = "Scatterplot of Daily Calories Burned and Steps Over Time by Weekday",
+                  yaxis = list(title = "Daily Calories Burned"), xaxis = list(title = "Date"), 
+       hovermode = "compare")
+
+```
+
+
+This plot shows my calories burned (y-axis) and step count (size of point) over time, and is also colored by weekday. Some of the highest points of calories burned are on Saturdays, and higher calories burned tend to generally be associated with higher step counts.
+
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+##Calories and sleep (for website)
+fitbit %>% 
+  plot_ly(x = ~calories, y = ~mins_asleep, 
+          type = 'scatter', mode = 'markers', 
+            size = ~calories, sizes = c(1, 50), marker = list(sizemode='diameter', opacity=0.5),
+          hoverinfo = 'text',
+          text = ~paste( 
+                         paste(" Minutes Asleep: ", mins_asleep, sep="") , 
+                         paste(" Calories Burned Per Day: ", calories, sep="") ,
+                         sep = "<br>")) %>% 
+layout(title = "Scatterplot of Calories Burned and Sleep",
+                  yaxis = list(title = "Minutes Asleep"), xaxis = list(title = "Calories Burned"), 
+       hovermode = "compare")
+```
+
+
+In this scatterplot, you can see how the calories I burned per day are related to my minutes of sleep time. The size of the points corresponds to calories. 
+
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+##Covid calories boxplot
 fitbit %>%
-plot_ly(x = ~date, y = ~weight, color = ~covid2, type = "scatter", mode = "lines",
-        hoverinfo = 'text',
-        text = ~paste( paste("Date: ", date, sep=""), paste(covid, ":", sep=""), paste(" Weight: ", weight, sep=""), 
-                       sep = "<br>")) %>% 
-layout(title = "Weight by Date Before and After Covid",
-                  yaxis = list(title = "Weight"), xaxis = list(title = "Date"), 
-       hovermode = "closest")
+  plot_ly(x= ~covid2, y= ~calories, 
+          type = "box") %>% 
+layout(title = "Boxplot of Calories by Covid",
+                  yaxis = list(title = "Calories Burned"), xaxis = list(title = "Covid-19"))
+      
 ```
 
-# Plot 3 - Interactive Data Table for the Month of January
-```{r, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
-fitbit_january <- fitbit %>% filter((date >= as.Date("2020-01-01") & date <= as.Date("2020-01-31"))) %>% select(date,weight,calories,steps,mins_asleep)
-datatable(fitbit_january)
+
+This boxplot demonstrates how the Covid-19 pandemic affected my activity level in terms of calories burned daily. The median amount of calories burned was higher before Covid-19 than after.
+
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+## Steps, temp, and calories (for website)
+fitbit %>% 
+  plot_ly(x = ~avg_temp, y = ~steps, 
+          type = 'scatter', mode = 'markers', color="darkgreen",
+            size = ~calories, sizes = c(5, 70), marker = list(sizemode='diameter', opacity=0.5),
+          hoverinfo = 'text',
+          text = ~paste( 
+                         paste(" Steps Per Day: ", steps, sep="") , 
+                         paste(" Average Daily Temperature: ", avg_temp, sep="") ,
+                         paste(" Daily Calories Burned: ", calories, sep=""), sep = "<br>")) %>% 
+layout(title = "Scatterplot of Steps and Calories Burned by Average Daily Temperature ",
+                  yaxis = list(title = "Steps"), xaxis = list(title = "Average Daily Temperature"), 
+       hovermode = "compare")
 ```
+
+
+This final plot illustrates some of the key variables in this dataset. The size of the points is calories burned, which is closely related to step count. It is evident that there is an inverse relationship with step count and average daily temperature-- that is, when it is hotter outside, I walk less steps than when it is colder. 
+
+
+
+# Full Report
+
+
+If you would like to read more details about my project including the methodology, and more detailed results (with extra plots, as well as significance tests), please feel free to download my report at:
+
+
+
+
+#References
+
+1- CDC Physical Activity Guidelines (2020)
+https://www.cdc.gov/physicalactivity/basics/adults/index.htm
+
+
+2- Tudor-Locke, C., Craig, C. L., Brown, W. J., Clemes, S. A., De Cocker, K., Giles-Corti, B., ... & Oppert, J. M. (2011). How many steps/day are enough? For adults. International Journal of Behavioral Nutrition and Physical Activity, 8(1), 1-17
+
+
+3- Sleep Guidelines (2020)
+https://www.sleepfoundation.org/articles/how-much-sleep-do-we-really-need#:~:text=National%20Sleep%20Foundation%20guidelines1,to%208%20hours%20per%20night.
+
+
+4- Tison, G. H., Avram, R., Kuhar, P., Abreau, S., Marcus, G. M., Pletcher, M. J., & Olgin, J. E. (2020). Worldwide effect of COVID-19 on physical activity: a descriptive study. Annals of internal medicine.
+
+
+
 

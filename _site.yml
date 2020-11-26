@@ -1,12 +1,10 @@
 name: "my-website"
 output_dir: "."
 navbar:
-  title: "PM566 Final Project"
+  title: "FitBit Data Project"
   left:
-    - text: "Homework 5"
+    - text: "FitBit Data Project"
       href: index.html
-    - text: "Final Project"
-      href: presentation.html
 output:
   html_document:
     theme: yeti
