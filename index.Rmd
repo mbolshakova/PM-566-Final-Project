@@ -241,6 +241,8 @@ This final plot illustrates some of the key variables in this dataset. The size 
 
 
 If you would like to read more details about my project including the methodology, and more detailed results (with extra plots, as well as significance tests), please feel free to download my report at:
+https://github.com/mbolshakova/PM-566-Final-Project/blob/master/Final-Report.pdf
+
 
 
 
